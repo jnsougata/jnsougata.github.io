@@ -1,1 +1,0 @@
-# jnsougata.github.io
