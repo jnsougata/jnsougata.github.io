@@ -17,9 +17,44 @@
         border-radius: 50%;
         border: 5px solid white;
       }
+
+      input[type=text] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: none;
+        border-radius: 15px;
+        background-color: black;
+        color: white;
+        opacity: 0.5;
+      }
+
+      button {
+        margin-top: 10px;
+        background-color: red;
+        border: none;
+        color: white;
+        padding: 8px 16px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 15px;
+        border-radius: 15px;
+        cursor: pointer;
+      }
+
+      button span {
+        cursor: pointer;
+        display: inline-block;
+        position: relative;
+        transition: 0.5s;
+      }
+
       p {
         font-size: 1.5rem;
       }
+
       body {
         margin: 0;
         font-family: 'Prompt', sans-serif;
@@ -177,8 +212,23 @@
 
     <section class="pink">
       <div class="blob-content">
-        <h1>SHA-1011 Coming Soon</h1>
-        <p>1011-bit Secure Hash Algorithm</p>
+        <h1>SHA1011 Hash Generator</h1>
+        <form>
+          <input type="text" id="input_text" name="ip_txt" value="" placeholder="type here...">
+        </form>
+        <button onclick="getHashValue()"><span>Generate</span></button>
+        <script>
+          function getHashValue() {
+            let xmlHttpReq = new XMLHttpRequest();
+            let input_text = document.getElementById("input_text").value;
+            let url = "https://sha-1011.herokuapp.com/" + input_text;
+            xmlHttpReq.open("GET", url, false);
+            xmlHttpReq.send(null);
+            console.log(xmlHttpReq.responseText);
+            return xmlHttpReq.responseText;
+            }
+      </script>
+
       </div>
 
       <svg
