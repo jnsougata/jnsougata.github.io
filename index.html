@@ -219,14 +219,15 @@
         <button onclick="getHashValue()"><span>Generate</span></button>
         <script>
           function getHashValue() {
-            let xmlHttpReq = new XMLHttpRequest();
+            let Http = new XMLHttpRequest();
             let input_text = document.getElementById("input_text").value;
-            let url = "https://sha-1011.herokuapp.com/" + input_text;
-            xmlHttpReq.open("GET", url, false);
-            xmlHttpReq.send(null);
-            console.log(xmlHttpReq.responseText);
-            return xmlHttpReq.responseText;
-            }
+            let url='https://sha-1011.herokuapp.com/'+input_text;
+            Http.open("GET", url);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+              console.log(Http.responseText)
+              }
+          }
       </script>
 
       </div>
