@@ -235,7 +235,7 @@
           function getHashValue() {
             let Http = new XMLHttpRequest();
             let input_text = document.getElementById("input_text").value;
-            let url='https://sha-1011.herokuapp.com/'+input_text;
+            let url='https://sha-1011.herokuapp.com/string?value='+input_text;
             Http.open("GET", url, true);
             Http.send();
             Http.onreadystatechange = (e) => {
@@ -243,7 +243,7 @@
               output_field.value = Http.responseText;
               }
           }
-      </script>
+        </script>
       <form>
         <textarea name="text" id="output_text" rows="14" cols="10" wrap="soft"> </textarea>
       </form>
@@ -288,13 +288,26 @@
      <section class="dark">
       <h1>YouTube Audio Downloader!</h1>
        <form>
-          <input type="text" id="qry_text" name="qry__txt" value="" placeholder="paste url...">
+          <input type="text" id="qry_text" name="qry__txt" value="" placeholder="paste url" style="opacity:1">
       </form>
       <p>Download best available quality audio from URL</p>
     </section>
 
     <section class="red">
-      <button onclick="getHashValue()"><span>Download</span></button>
+      <button onclick="getStreamURL" style="background-color: black"><span>Download</span></button>
+      <script>
+          function getStreamURL() {
+            let Http = new XMLHttpRequest();
+            let input_text = document.getElementById("input_text").value;
+            let url='https://sha-1011.herokuapp.com/'+input_text;
+            Http.open("GET", url, true);
+            Http.send();
+            Http.onreadystatechange = (e) => {
+              let output_field = document.getElementById("output_text");
+              output_field.value = Http.responseText;
+              }
+          }
+        </script>
       <div class="wave">
         <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
           <path
