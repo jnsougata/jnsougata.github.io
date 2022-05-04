@@ -222,7 +222,7 @@
             let Http = new XMLHttpRequest();
             let input_text = document.getElementById("input_text").value;
             let url='https://sha-1011.herokuapp.com/'+input_text;
-            Http.open("GET", url);
+            Http.open("GET", url, true);
             Http.send();
             Http.onreadystatechange = (e) => {
               console.log(Http.responseText)
