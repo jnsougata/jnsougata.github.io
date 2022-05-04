@@ -55,6 +55,7 @@
         font-size: 15px;
         border-radius: 15px;
         cursor: pointer;
+        z-index: 100;
       }
 
       button span {
@@ -285,14 +286,15 @@
     </section>
 
      <section class="dark">
-      <h1>YouTube Downloader!</h1>
-      <p>Download best available quality video from URL</p>
+      <h1>YouTube Audio Downloader!</h1>
+       <form>
+          <input type="text" id="qry_text" name="qry__txt" value="" placeholder="paste url...">
+      </form>
+      <p>Download best available quality audio from URL</p>
     </section>
 
     <section class="red">
-      <h1>:D</h1>
-      <p>WIP</p>
-
+      <button onclick="getHashValue()"><span>Download</span></button>
       <div class="wave">
         <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
           <path
