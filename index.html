@@ -10,9 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@100;400;900&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/kute.js@2.1.2/dist/kute.min.js"></script>
     <style>
+
       h1 {
         font-size: 4rem;
       }
+
       img {
         border-radius: 50%;
         border: 5px solid white;
@@ -25,9 +27,9 @@
         box-sizing: border-box;
         border: none;
         border-radius: 15px;
-        background-color: black;
-        color: white;
-        opacity: 0.5;
+        background-color: white;
+        color: black;
+        opacity: 1.0;
       }
 
       textarea {
@@ -37,15 +39,17 @@
         margin: 8px 0;
         box-sizing: border-box;
         border: none;
+        box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
         border-radius: 15px;
-        background-color: black;
-        color: white;
-        opacity: 0.5;
+        background-color: transparent;
+        color: black;
+        opacity: 1;
       }
 
       button {
         margin-top: 10px;
-        background-color: red;
+        margin-bottom: 10px;
+        background-color: #4CAF50;
         border: none;
         color: white;
         padding: 8px 16px;
@@ -214,14 +218,14 @@
   <body>
     <section class="blue">
       <img src="https://raw.githubusercontent.com/jnsougata/jnsougata.github.io/main/assets/dp.jpg" style="width:200px">
-      <h1>Sougata Jana</h1>
-      <p style="z-index: 1">
+      <h1 style="z-index: 1; text-align: center; margin: 10px">Sougata Jana</h1>
+      <p style="z-index: 1; text-align: center; margin: 20px">
         I describe myself as a student who loves coding, open source, and the software design.
         <br>I like to create and contribute to open source projects, helps me to learn a ton of new stuff.
         <br><br>
-        <a href="https://github.com/jnsougata/aiotube" target="_blank"><img src="https://iconape.com/wp-content/files/iz/114522/png/webdev-1.png" alt="aiotube" width="50" height="50" style="border-radius: 0px; border: 0px"/></a>
+        <a href="https://github.com/jnsougata/aiotube" target="_blank"><img src="https://alexanderfo.com/wp-content/uploads/2019/12/1139px-Cloud-API-Logo.svg_.png" alt="aiotube" width="50" height="50" style="border-radius: 0px; border: 0px"/></a>
         <a href="https://www.python.org" target="_blank"> <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="50" height="50" style="border-radius: 0px; border: 0px"/></a>
-        <a href="https://www.rust-lang.org/" target="_blank"> <img src="https://www.rust-lang.org/static/images/rust-logo-blk.svg" alt="rust" width="50" height="50" style="border-radius: 0px; border: 0px"/></a>
+        <a href="https://www.rust-lang.org/" target="_blank"> <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Rust_programming_language_black_logo.svg/2048px-Rust_programming_language_black_logo.svg.png" alt="rust" width="45" height="45" style="border-radius: 0px; border: 0px"/></a>
         <a href="https://unity.com/" target="_blank"> <img src="https://i.redd.it/tu3gt6ysfxq71.png" alt="unity" width="50" height="50" style="border-radius: 0px; border: 0px"/></a>
         <a href="https://www.arduino.cc/" target="_blank"> <img src="https://cdn.worldvectorlogo.com/logos/arduino-1.svg" alt="arduino" width="50" height="50" style="border-radius: 0px; border: 0px"/></a>
       <div class="curve"></div>
@@ -230,12 +234,14 @@
     <div class="spacer layer1"></div>
 
     <section class="pink">
-      <div class="blob-content">
-        <h1>SHA1011 Hash Generator</h1>
+      <div class="blob-content" style="margin: 10px">
+        <h1 style="align: center; margin: 20px">SHA1011 Hash Generator</h1>
         <form>
-          <input type="text" id="input_text" name="ip_txt" value="" placeholder="type here...">
+          <input type="text" id="input_text" name="ip_txt" value="" placeholder="paste here...">
         </form>
-        <button onclick="getHashValue()"><span>Generate</span></button>
+        <div style = "display: flex; justify-content:flex-end">
+          <button onclick="getHashValue()"><span>Generate</span></button>
+        </div>
         <script>
           function getHashValue() {
             let Http = new XMLHttpRequest();
@@ -250,7 +256,7 @@
           }
         </script>
       <form>
-        <textarea name="text" id="output_text" rows="14" cols="10" wrap="soft"> </textarea>
+        <textarea name="text" id="output_text" rows="10" cols="10" wrap="soft" readonly> </textarea>
       </form>
       </div>
       <svg
