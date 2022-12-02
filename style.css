@@ -1,219 +1,164 @@
-:root {
-    --text: #e5e5e5;
-    --accent: #1688f0;
-    --bg-main: #000;
-    --bg-repo: #0f0f1a;
-    --bg-user: #0a0a0f;
-}
-
 * {
-    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    font-family: 'Open Sans', sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text);
-    font-size: 16px;
+    font-family: 'Prompt', sans-serif;
+    color: white;
+    background: #1d2024;
+    overflow: hidden;
+    
 }
 
 .container {
+    margin: auto;
+    height: 100vh;
+    width: 100vw;
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    flex-direction: row;
-    flex-wrap: wrap;
     align-items: center;
-    width: 90%;
-    max-width: 1280px;
 }
 
-.hide {
-    /* '!important' is to make sure that when we add the class using JS, it takes precendence */
-    display: none !important;
+.container > .avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: #2d323b;
+    border: 10px solid #3a3d4171;
 }
 
-h1 {
-    color: var(--accent);
-    margin-bottom: 4px;
-}
-
-small {
+.container > .avatar > img {
     width: 100%;
-    text-align: center;
-    display: block;
-    margin-bottom: 20px;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
-h2 {
-    width: 100%;
-    text-align: center;
-    color: var(--text);
-    margin: 0;
-}
-
-img {
-    border: 2px solid var(--accent);
-    box-shadow: 0 0px 6px var(--accent), 0 0px 6px var(--accent);
-    max-width: 100%;
-    height: auto;
-}
-
-a {
-    color: var(--accent);
-    text-decoration: none;
-}
-
-.github-img {
-    width: 45px;
-    margin-right: 8px;
-}
-
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-.user-info {
+.container > .name {
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: 500;
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    background-color: var(--bg-user);
-    color: var(--text);
-    font-size: 18px;
-    padding: 2em;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
-}
-
-.user-info figure {
-    width: 90%;
-    max-width: 200px;
-}
-
-.user-info img {
-    border-radius: 100%;
-}
-
-.user-info div {
-    display: flex;
-    text-align: center;
-    flex-wrap: wrap;
     align-items: center;
-    width: 100%;
-    padding-left: 5%;
 }
 
-.user-info div p {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    border-bottom: 1px solid var(--text);
-    padding-bottom: 18px;
+.container > .name > p {
+    font-size: 55px;
+    font-weight: 1000;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
-.filter-repos,
-input {
-    background: var(--bg-user);
-    width: 50%;
-    border-radius: 20px;
-    min-width: 300px;
-    margin-top: 1em;
-    padding: 1em;
-    margin-bottom: 1em;
-    border: 2px solid var(--accent);
-    color: var(--text);
-    text-align: center;
+.container > .name > p > i {
+    font-size: 50px;
+    cursor: pointer;
 }
 
-.repos {
+.container > .about {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
-    background-color: var(--bg-repo);
-    margin-top: 0;
-    padding: 2em;
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
-    margin-bottom: 4em;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+    width: 800px;
 }
 
-h3 {
-    margin: 4px;
-    width: 100%;
+.container > .about > p {
+    font-size: 25px;
+    font-weight: 500;
+    margin-left: 5px;
+    margin-right: 5px;
+    white-space: wrap;
     text-align: center;
-    color: var(--accent);
 }
 
-.repo-list {
-    width: 100%;
+.container > .projects {
+    font-size: 25px;
+    font-weight: 500;
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
 }
 
-.repo-list li {
-    width: 100%;
-    min-height: 180px;
-    border-radius: 10px;
-    margin: 1em 0;
-    border: 1px solid var(--accent);
-    padding: 1em;
-    text-align: center;
-    background-color: var(--bg-user);
+.container .projects > p {
+    font-size: 55px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
-.repo-list li:hover {
-    background-color: var(--bg-main);
-    box-shadow: 0 3px 6px var(--accent), 0 3px 6px var(--accent);
+.container > .projects > p > i {
+    font-size: 35px;
+    cursor: pointer;
+    transition: 0.5s;
 }
 
-.repo-list li a {
-    padding: 10px 20px;
-    background: var(--bg-main);
-    border-radius: 30px;
-    border: 2px solid var(--accent);
-    color: var(--text);
+.container > .projects > p > i:hover {
+    font-size: 40px;
 }
 
-.repo-list li a:hover {
-    background: var(--accent);
-    border: 2px solid var(--text);
-    transform: scale(1.1);
+.container > .socials {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.repo-list p {
-    padding: 0em 0.5em;
-    margin: 0.5em 0;
+.container > .socials > p {
+    font-size: 20px;
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 5px 15px;
+    cursor: pointer;
+    background-color: #3a3d4171;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
-@media (min-width: 700px) {
-    .user-info div {
-        width: 45%;
-        text-align: left;
+.container > .socials > p > i {
+    margin-right: 10px;
+}
+
+.container > .socials > p:hover {
+    background-color: #3a3d41;
+}
+
+@media screen and (max-width: 768px) {
+    .container > .about {
+        width: 100%;
+        max-width: 300px;
     }
-
-    .repo-list {
-        justify-content: space-between;
+    .container > .avatar {
+        width: 150px;
+        height: 150px;
     }
-
-    .repo-list li {
-        width: 48%;
+    .container > .name {
+        font-size: 25px;
     }
-}
-
-@media (max-width: 700px) {
-    .user-info div p {
-        margin: 10px;
+    .container > .name > p {
+        font-size: 50px;
     }
-}
-
-@media (min-width: 1200px) {
-    .repo-list li {
-        width: 30%;
+    .container > .name > p > i {
+        font-size: 45px;
+    }
+    .container > .about > p {
+        font-size: 20px;
+    }
+    .container > .projects {
+        font-size: 20px;
+    }
+    .container > .projects > p {
+        font-size: 50px;
+    }
+    .container > .projects > p > i {
+        font-size: 30px;
+    }
+    .container > .socials > p {
+        font-size: 15px;
     }
 }
