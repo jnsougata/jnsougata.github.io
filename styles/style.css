@@ -45,14 +45,16 @@ body {
     align-items: center;
 }
 
-.container > .name > p {
+.container > .name > a {
     font-size: 55px;
     font-weight: 1000;
     margin-left: 5px;
     margin-right: 5px;
+    text-decoration: none;
+    color: white;
 }
 
-.container > .name > p > i {
+.container > .name > p > a {
     font-size: 50px;
     cursor: pointer;
 }
@@ -84,19 +86,22 @@ body {
     align-items: center;
 }
 
-.container .projects > p {
+.container .projects > a {
     font-size: 55px;
     margin-left: 10px;
     margin-right: 10px;
+    cursor: pointer;
+    transition: 0.5s;
+    text-decoration: none;
 }
 
-.container > .projects > p > i {
+.container > .projects > a > i {
     font-size: 35px;
     cursor: pointer;
     transition: 0.5s;
 }
 
-.container > .projects > p > i:hover {
+.container > .projects > a > i:hover {
     font-size: 40px;
 }
 
@@ -107,7 +112,7 @@ body {
     align-items: center;
 }
 
-.container > .socials > p {
+.container > .socials > a {
     font-size: 20px;
     margin-left: 10px;
     margin-right: 10px;
@@ -118,9 +123,11 @@ body {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    text-decoration: none;
+    color: rgb(221, 221, 221);
 }
 
-.container > .socials > p > i {
+.container > .socials > a > i {
     margin-right: 10px;
 }
 
