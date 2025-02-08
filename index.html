@@ -137,6 +137,11 @@
             transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
 
+        .timeline-item.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         /* Custom Gradients */
         .gradient-1 {
             background: linear-gradient(45deg, #e91e63, #9c27b0);
@@ -432,8 +437,8 @@
                 <div class="timeline-item">
                     <div class="timeline-icon"><i class="fas fa-graduation-cap"></i></div>
                     <div class="timeline-content">
-                        <div class="timeline-date">2019 - 2023</div>
-                        <div class="timeline-title">BSc. in Physics</div>
+                        <div class="timeline-date text-gray-600">2019 - 2023</div>
+                        <div class="timeline-title text-gray-800">BSc. in Physics</div>
                         <p class="text-gray-700">Completed my Bachelor of Science degree in Physics from University of
                             Calcutta.</p>
                     </div>
@@ -442,8 +447,8 @@
                 <div class="timeline-item">
                     <div class="timeline-icon"><i class="fas fa-laptop-code"></i></div>
                     <div class="timeline-content">
-                        <div class="timeline-date">2020 - Present</div>
-                        <div class="timeline-title">Self-Learning and Personal Projects</div>
+                        <div class="timeline-date text-gray-600">2020 - Present</div>
+                        <div class="timeline-title text-gray-800">Self-Learning and Personal Projects</div>
                         <p class="text-gray-700">Focused on self-learning and building personal projects to enhance
                             skills.</p>
                     </div>
@@ -452,8 +457,8 @@
                 <div class="timeline-item">
                     <div class="timeline-icon"><i class="fas fa-university"></i></div>
                     <div class="timeline-content">
-                        <div class="timeline-date">2023 - 2025</div>
-                        <div class="timeline-title">MCA at MAKAUT</div>
+                        <div class="timeline-date text-gray-600">2023 - 2025</div>
+                        <div class="timeline-title text-gray-800">MCA at MAKAUT</div>
                         <p class="text-gray-700">Currently, pursuing Master of Computer Applications at Maulana Abul
                             Kalam Azad University of Technology, W.B.</p>
                     </div>
@@ -462,8 +467,8 @@
                 <div class="timeline-item">
                     <div class="timeline-icon"><i class="fas fa-search"></i></div>
                     <div class="timeline-content">
-                        <div class="timeline-date">2023 - Present</div>
-                        <div class="timeline-title">Seeking Opportunities</div>
+                        <div class="timeline-date text-gray-600">2023 - Present</div>
+                        <div class="timeline-title text-gray-800">Seeking Opportunities</div>
                         <p class="text-gray-700">Actively seeking opportunities to apply my skills and grow.</p>
                     </div>
                 </div>
@@ -536,6 +541,9 @@
 
                     if (itemPosition < screenPosition) {
                         item.classList.add('active');
+                    } else {
+                         // Remove active class if scrolled back up
+                        item.classList.remove('active');
                     }
                 });
             }
