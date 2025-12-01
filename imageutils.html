@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<script src="https://cdn.tailwindcss.com"></script>
+<title>Image Resizer — Apply + Size Target</title>
+<style>body{background:#fff}</style>
+</head>
+<body class="min-h-screen flex justify-center p-4">
+  <div class="w-full max-w-3xl border border-black p-6 space-y-6">
+    <h1 class="text-3xl font-bold text-black text-center">Image Resizer</h1>
+
+    <div class="space-y-4">
+      <input id="file" type="file" accept="image/*" class="w-full border border-black p-2 bg-white text-black" />
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm text-black">Target Width (px)</label>
+          <input id="maxW" type="number" value="1024" class="w-full border border-black p-2 bg-white text-black" />
+        </div>
+        <div>
+          <label class="text-sm text-black">Target Height (px)</label>
+          <input id="maxH" type="number" value="1024" class="w-full border border-black p-2 bg-white text-black" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm text-black">Fit Mode</label>
+          <select id="fitMode" class="w-full border border-black p-2 bg-white text-black">
+            <option value="contain">Contain (preserve aspect)</option>
+            <option value="cover">Cover (crop to fill)</option>
+            <option value="stretch">Stretch (ignore aspect)</option>
+            <option value="shrink">Shrink-only (preserve, no upscaling)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-black">Format</label>
+          <select id="format" class="w-full border border-black p-2 bg-white text-black">
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/png">PNG</option>
+            <option value="image/webp">WEBP</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="text-sm text-black">Quality (0.00 - 1.00)</label>
+          <input id="quality" type="number" min="0" max="1" step="0.01" value="0.85" class="w-full border border-black p-2 bg-white text-black" />
+        </div>
+        <div>
+          <label class="text-sm text-black">Min size (KB)</label>
+          <input id="minKB" type="number" min="0" placeholder="optional" class="w-full border border-black p-2 bg-white text-black" />
+        </div>
+        <div>
+          <label class="text-sm text-black">Max size (KB)</label>
+          <input id="maxKB" type="number" min="0" placeholder="optional" class="w-full border border-black p-2 bg-white text-black" />
+        </div>
+      </div>
+
+      <button id="applyBtn" class="w-full border border-black p-3 bg-black text-white font-semibold disabled:opacity-50" disabled>Apply</button>
+      <button id="downloadBtn" class="w-full border border-black p-3 bg-white text-black font-semibold disabled:opacity-50" disabled>Download</button>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold text-black">Stats & Notices</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <div class="border border-black p-3">
+          <h3 class="font-medium">Original</h3>
+          <p id="origSize" class="text-sm"></p>
+          <p id="origDim" class="text-sm"></p>
+        </div>
+        <div class="border border-black p-3">
+          <h3 class="font-medium">Resized</h3>
+          <p id="newSize" class="text-sm"></p>
+          <p id="newDim" class="text-sm"></p>
+          <p id="notice" class="text-sm text-black mt-2"></p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-xl font-semibold text-black mb-2">Preview</h2>
+      <img id="preview" class="w-full border border-black" />
+    </div>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id)
+const fileInput = $('file')
+const applyBtn = $('applyBtn')
+const downloadBtn = $('downloadBtn')
+const preview = $('preview')
+const origSize = $('origSize')
+const origDim = $('origDim')
+const newSize = $('newSize')
+const newDim = $('newDim')
+const notice = $('notice')
+
+let selectedFile = null
+let resizedBlob = null
+let originalW = 0, originalH = 0
+
+fileInput.addEventListener('change', e => {
+  selectedFile = e.target.files?.[0] || null
+  resizedBlob = null
+  downloadBtn.disabled = true
+  notice.textContent = ''
+  if (!selectedFile) { applyBtn.disabled = true; preview.src=''; origSize.textContent=''; origDim.textContent=''; newSize.textContent=''; newDim.textContent=''; return }
+  applyBtn.disabled = false
+  const url = URL.createObjectURL(selectedFile)
+  preview.src = url
+  origSize.textContent = 'File size: ' + formatBytes(selectedFile.size)
+  const img = new Image()
+  img.onload = () => { originalW = img.width; originalH = img.height; origDim.textContent = `Dimensions: ${img.width} × ${img.height}` }
+  img.src = url
+  newSize.textContent = ''
+  newDim.textContent = ''
+})
+
+async function loadImg(file) {
+  if ('createImageBitmap' in window) return await createImageBitmap(file)
+  return await new Promise((res, rej) => {
+    const i = new Image()
+    i.onload = () => res(i)
+    i.onerror = rej
+    i.src = URL.createObjectURL(file)
+  })
+}
+
+function formatBytes(n) {
+  const k = 1024
+  if (n < k) return n + ' B'
+  const u = ['KB','MB','GB']
+  let i = -1
+  do { n/=k; i++ } while (n>=k && i<u.length-1)
+  return n.toFixed(2)+' '+u[i]
+}
+
+function makeCanvas(w,h){ const c = document.createElement('canvas'); c.width=w; c.height=h; return c }
+
+function computeDimensions(mode, srcW, srcH, tgtW, tgtH) {
+  const sw = srcW, sh = srcH
+  if (mode === 'stretch') return { drawW: tgtW, drawH: tgtH, sx:0,sy:0,sw:sw,sh:sh }
+  if (mode === 'shrink') {
+    const r = Math.min(1, Math.min(tgtW / sw, tgtH / sh))
+    const w = Math.round(sw * r), h = Math.round(sh * r)
+    const dx = Math.round((tgtW - w)/2), dy = Math.round((tgtH - h)/2)
+    return { canvasW: tgtW, canvasH: tgtH, drawW: w, drawH: h, dx, dy, sx:0,sy:0,sw:sw,sh:sh, background:true }
+  }
+  if (mode === 'contain') {
+    const r = Math.min(tgtW / sw, tgtH / sh, 1e9)
+    const w = Math.round(sw * r), h = Math.round(sh * r)
+    return { canvasW: w, canvasH: h, drawW: w, drawH: h, sx:0,sy:0,sw:sw,sh:sh }
+  }
+  if (mode === 'cover') {
+    const r = Math.max(tgtW / sw, tgtH / sh)
+    const swScaled = Math.round(tgtW / r), shScaled = Math.round(tgtH / r)
+    const sx = Math.round((sw - swScaled) / 2), sy = Math.round((sh - shScaled) / 2)
+    return { canvasW: tgtW, canvasH: tgtH, drawW: tgtW, drawH: tgtH, sx, sy, sw: swScaled, sh: shScaled }
+  }
+  return { canvasW: tgtW, canvasH: tgtH, drawW: tgtW, drawH: tgtH, sx:0,sy:0,sw:sw,sh:sh }
+}
+
+async function drawToCanvas(img, mode, tgtW, tgtH) {
+  const sw = img.width, sh = img.height
+  const dims = computeDimensions(mode, sw, sh, tgtW, tgtH)
+  const cw = dims.canvasW || dims.drawW, ch = dims.canvasH || dims.drawH
+  const c = makeCanvas(cw, ch)
+  const ctx = c.getContext('2d')
+  if (dims.background) {
+    ctx.fillStyle = '#ffffff'
+    ctx.fillRect(0,0,cw,ch)
+    ctx.drawImage(img, 0,0, dims.drawW, dims.drawH, dims.dx, dims.dy, dims.drawW, dims.drawH)
+    return c
+  }
+  if (mode === 'cover') {
+    ctx.drawImage(img, dims.sx, dims.sy, dims.sw, dims.sh, 0,0, cw, ch)
+    return c
+  }
+  ctx.drawImage(img, 0,0, sw, sh, 0,0, cw, ch)
+  return c
+}
+
+async function blobFromCanvasWithQuality(canvas, fmt, q) {
+  return new Promise(res => {
+    if (fmt === 'image/png') canvas.toBlob(res, fmt)
+    else canvas.toBlob(res, fmt, q)
+  })
+}
+
+async function binarySearchQuality(img, mode, tgtW, tgtH, fmt, minB, maxB) {
+  let low = 0.05, high = 0.95
+  let best = null
+  for (let i=0;i<9;i++) {
+    const mid = (low + high)/2
+    const c = await drawToCanvas(img, mode, tgtW, tgtH)
+    const b = await blobFromCanvasWithQuality(c, fmt, mid)
+    const size = b.size
+    if (size <= maxB && size >= minB) return { blob: b, quality: mid, success: true }
+    if (size > maxB) high = mid
+    else if (size < minB) low = mid
+    best = { blob: b, quality: mid, size }
+  }
+  return { blob: best.blob, quality: best.quality, success: false, closestSize: best.size }
+}
+
+async function resizeAndRespectSize(srcFile, mode, tgtW, tgtH, fmt, quality, minKB, maxKB) {
+  const img = await loadImg(srcFile)
+  const minB = (minKB!=null)? minKB*1024 : 0
+  const maxB = (maxKB!=null && maxKB>0)? maxKB*1024 : Infinity
+  if (fmt === 'image/png') {
+    const c = await drawToCanvas(img, mode, tgtW, tgtH)
+    const b = await blobFromCanvasWithQuality(c, fmt)
+    const ok = b.size >= minB && b.size <= maxB
+    return { blob: b, appliedQuality: null, ok, note: ok? '' : 'PNG size constraint could not be enforced (PNG ignores quality).' }
+  }
+  if (minKB==null && (maxKB==null || maxKB===0)) {
+    const c = await drawToCanvas(img, mode, tgtW, tgtH)
+    const b = await blobFromCanvasWithQuality(c, fmt, quality)
+    return { blob: b, appliedQuality: quality, ok:true, note: '' }
+  }
+  const res = await binarySearchQuality(img, mode, tgtW, tgtH, fmt, Math.max(0,minB), Math.max(0,maxB))
+  if (res.success) return { blob: res.blob, appliedQuality: res.quality, ok:true, note: '' }
+  return { blob: res.blob, appliedQuality: res.quality, ok:false, note: 'Could not meet both bounds; returned closest result.' }
+}
+
+applyBtn.addEventListener('click', async () => {
+  if (!selectedFile) return
+  applyBtn.disabled = true
+  applyBtn.textContent = 'Applying…'
+  downloadBtn.disabled = true
+  notice.textContent = ''
+
+  const mode = $('fitMode').value
+  const fmt = $('format').value
+  const rawQ = parseFloat($('quality').value)
+  const quality = Number.isFinite(rawQ) ? Math.min(1, Math.max(0, rawQ)) : 0.85
+  const tgtW = Math.max(1, parseInt($('maxW').value) || 1024)
+  const tgtH = Math.max(1, parseInt($('maxH').value) || 1024)
+  const minKB = $('minKB').value ? Math.max(0, parseFloat($('minKB').value)) : null
+  const maxKB = $('maxKB').value ? Math.max(0, parseFloat($('maxKB').value)) : null
+
+  try {
+    const r = await resizeAndRespectSize(selectedFile, mode, tgtW, tgtH, fmt, quality, minKB, maxKB)
+    resizedBlob = r.blob
+    const url = URL.createObjectURL(resizedBlob)
+    preview.src = url
+    newSize.textContent = 'File size: ' + formatBytes(resizedBlob.size)
+    newDim.textContent = 'Dimensions: ' + await getBlobDim(resizedBlob)
+    notice.textContent = r.note || (r.appliedQuality!=null ? `applied quality: ${r.appliedQuality.toFixed(2)}` : '')
+    if (!r.ok && r.appliedQuality!=null) notice.textContent += ' (size bounds not fully met)'
+    if (!r.ok && fmt === 'image/png') notice.textContent += ' (try JPEG/WEBP to control file size)'
+    downloadBtn.disabled = false
+  } catch (err) {
+    notice.textContent = 'Error: ' + (err && err.message || err)
+  } finally {
+    applyBtn.disabled = false
+    applyBtn.textContent = 'Apply'
+  }
+})
+
+downloadBtn.addEventListener('click', () => {
+  if (!resizedBlob) return
+  const url = URL.createObjectURL(resizedBlob)
+  const ext = $('format').value.split('/')[1]
+  const a = document.createElement('a')
+  a.href = url
+  a.download = selectedFile.name.replace(/\.[^.]+$/, '') + '.' + ext
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+})
+
+function getBlobDim(blob) {
+  return new Promise(res => {
+    const i = new Image()
+    i.onload = () => res(`${i.width} × ${i.height}`)
+    i.src = URL.createObjectURL(blob)
+  })
+}
+</script>
+</body>
+</html>
