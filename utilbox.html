@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<script src="https://cdn.tailwindcss.com"></script>
+<title>Util Box</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#000000; --muted:#444;
+  }
+  body{background:var(--bg);color:var(--fg);font-family:Inter,ui-sans-serif,system-ui,Arial,sans-serif}
+  a{color:inherit;text-decoration:none}
+  .no-round *{border-radius:0 !important}
+  .card{border:1px solid var(--fg);padding:1rem}
+  .kbd{font-family:monospace;font-size:0.8rem;border:1px solid var(--fg);padding:2px 6px}
+  /* small helper to visually separate admin area */
+  .muted{color:var(--muted)}
+</style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-6 no-round">
+  <div class="w-full max-w-6xl">
+
+    <header class="mb-6">
+      <h1 class="text-4xl font-extrabold text-center">Sougata's Util Box</h1>
+      <p class="text-center muted mt-1">Handy, private, client-side web tools for your peace of mind.</p>
+    </header>
+
+    <section class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="card md:col-span-2">
+        <h2 class="text-2xl font-bold">Explore tools</h2>
+        <p class="muted mt-1">Search, filter, preview and open tools. Everything runs client-side — links load your local HTML tools or external pages.</p>
+
+        <div class="mt-4 flex gap-3">
+          <input id="search" placeholder="Search tools..." class="flex-1 border border-black p-2" />
+          <select id="tagFilter" class="w-48 border border-black p-2">
+            <option value="">All tags</option>
+          </select>
+        </div>
+
+        <div class="mt-3 flex gap-2 flex-wrap">
+          <button class="tagBtn kbd" data-tag="">All</button>
+          <button class="tagBtn kbd" data-tag="image">image</button>
+          <button class="tagBtn kbd" data-tag="client">client</button>
+          <button class="tagBtn kbd" data-tag="experimental">experimental</button>
+          <button class="tagBtn kbd" data-tag="qa">qa</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="text-xl font-bold">Quick actions</h3>
+        <div class="mt-3 flex flex-col gap-2">
+          <button id="openAll" class="border border-black p-2">Open all in new tabs</button>
+          <button id="downloadList" class="border border-black p-2">Download tools JSON</button>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <footer class="mt-8 mb-6 muted text-sm">
+      Tip: Add your tool HTML files next to this file and update the admin JSON below. Tools open inside a full-screen modal for quick testing.
+    </footer>
+
+    <section class="border-t border-black pt-4">
+      <h3 class="text-xl font-semibold">Admin — Tools JSON</h3>
+      <p class="muted text-sm">Edit entries here (title, href, description, tags). Click "Apply JSON" to refresh the grid. Keep href as local filename or full URL.</p>
+      <textarea id="toolsJson" class="w-full border border-black p-3 mt-2 h-48" spellcheck="false"></textarea>
+      <div class="mt-2 flex gap-2">
+        <button id="applyJson" class="border border-black p-2">Apply JSON</button>
+        <button id="resetSample" class="border border-black p-2">Reset sample</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- full-screen modal for tool preview (iframe) -->
+  <div id="modal" class="fixed inset-0 bg-white hidden flex flex-col">
+    <div class="p-3 border-b border-black flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="closeModal" class="border border-black p-2 kbd">Close</button>
+        <button id="openInNew" class="border border-black p-2 kbd">Open in new tab</button>
+        <div id="modalTitle" class="ml-3 font-semibold"></div>
+      </div>
+      <div class="flex items-center gap-3">
+        <div id="modalSize" class="muted"></div>
+        <button id="reloadIframe" class="border border-black p-2 kbd">Reload</button>
+      </div>
+    </div>
+    <iframe id="previewFrame" src="" class="flex-1 border-0 w-full"></iframe>
+  </div>
+
+<script>
+  const sampleTools = [
+    { id: 'img-resizer', title: 'Image Utils', href: 'imageutils.html', desc: 'Client-side image resize/crop/stretch with size target', tags: ['image','client'] },
+    { id: 'mini-playground', title: 'Mini JS Playground', href: 'playground.html', desc: 'Run small JS snippets locally', tags: ['client','qa'] }
+  ]
+
+  const grid = document.getElementById('grid')
+  const toolsJson = document.getElementById('toolsJson')
+  const applyJson = document.getElementById('applyJson')
+  const resetSample = document.getElementById('resetSample')
+  const search = document.getElementById('search')
+  const tagFilter = document.getElementById('tagFilter')
+  const tagButtons = document.querySelectorAll('.tagBtn')
+  const openAll = document.getElementById('openAll')
+  const downloadList = document.getElementById('downloadList')
+
+  const modal = document.getElementById('modal')
+  const previewFrame = document.getElementById('previewFrame')
+  const modalTitle = document.getElementById('modalTitle')
+  const modalSize = document.getElementById('modalSize')
+  const closeModal = document.getElementById('closeModal')
+  const openInNew = document.getElementById('openInNew')
+  const reloadIframe = document.getElementById('reloadIframe')
+
+  function populateJSON(defaults){
+    toolsJson.value = JSON.stringify(defaults, null, 2)
+  }
+
+  function renderGrid(tools){
+    grid.innerHTML = ''
+    if(!Array.isArray(tools)) return
+    tools.forEach(t => {
+      const el = document.createElement('div')
+      el.className = 'card'
+      el.innerHTML = `
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="text-lg font-semibold mb-1">${escapeHtml(t.title)}</div>
+            <div class="muted text-sm">${escapeHtml(t.desc||'')}</div>
+            <div class="mt-3 flex gap-2 flex-wrap">${(t.tags||[]).map(tag=>'<span class="kbd">'+escapeHtml(tag)+'</span>').join('')}</div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <button class="openBtn border border-black p-2 kbd" data-href="${escapeAttr(t.href)}" data-title="${escapeAttr(t.title)}">Preview</button>
+            <a class="border border-black p-2 kbd block text-center" href="${escapeAttr(t.href)}" target="_blank" rel="noopener">Open</a>
+          </div>
+        </div>
+      `
+      grid.appendChild(el)
+    })
+    // attach listeners
+    document.querySelectorAll('.openBtn').forEach(b => b.addEventListener('click', e=>{
+      const href = e.currentTarget.dataset.href
+      const title = e.currentTarget.dataset.title
+      openModal(href, title)
+    }))
+  }
+
+  function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;') }
+  function escapeAttr(s){ return String(s||'').replaceAll('"','&quot;').replaceAll("'",'&#39;') }
+
+  function openModal(href, title){
+    previewFrame.src = href
+    modalTitle.textContent = title
+    modalSize.textContent = ''
+    modal.classList.remove('hidden')
+    document.body.style.overflow = 'hidden'
+    // try to get iframe size after load
+    previewFrame.onload = () => {
+      try {
+        const w = previewFrame.contentWindow.innerWidth
+        const h = previewFrame.contentWindow.innerHeight
+        modalSize.textContent = `${w} × ${h}`
+      } catch(e){
+        modalSize.textContent = ''
+      }
+    }
+    openInNew.onclick = () => { window.open(href, '_blank') }
+    reloadIframe.onclick = () => { previewFrame.src = previewFrame.src }
+  }
+
+  closeModal.addEventListener('click', ()=> {
+    modal.classList.add('hidden')
+    previewFrame.src = ''
+    document.body.style.overflow = ''
+  })
+
+  // simple filtering
+  function applyFilters(){
+    let list = safeParseJSON(toolsJson.value, sampleTools)
+    const q = search.value.trim().toLowerCase()
+    const tag = tagFilter.value
+    if(q) list = list.filter(t => (t.title+t.desc+(t.tags||[]).join(' ')).toLowerCase().includes(q))
+    if(tag) list = list.filter(t => (t.tags||[]).includes(tag))
+    renderGrid(list)
+  }
+
+  applyJson.addEventListener('click', ()=>{
+    applyFilters()
+    // update tag select
+    updateTagSelect()
+  })
+
+  resetSample.addEventListener('click', ()=>{
+    populateJSON(sampleTools)
+    applyFilters()
+    updateTagSelect()
+  })
+
+  search.addEventListener('input', applyFilters)
+  tagFilter.addEventListener('change', applyFilters)
+  tagButtons.forEach(b => b.addEventListener('click', e => {
+    const tag = e.currentTarget.dataset.tag
+    tagFilter.value = tag
+    applyFilters()
+  }))
+
+  openAll.addEventListener('click', ()=>{
+    const list = safeParseJSON(toolsJson.value, sampleTools)
+    list.forEach(t => {
+      if(t.href) window.open(t.href, '_blank')
+    })
+  })
+
+  downloadList.addEventListener('click', ()=>{
+    const b = new Blob([toolsJson.value], {type:'application/json'})
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(b)
+    a.download = 'tools.json'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+  })
+
+  function updateTagSelect(){
+    const list = safeParseJSON(toolsJson.value, sampleTools)
+    const tags = new Set()
+    list.forEach(t => (t.tags||[]).forEach(g=>tags.add(g)))
+    tagFilter.innerHTML = '<option value="">All tags</option>' + Array.from(tags).map(t=>`<option value="${t}">${t}</option>`).join('')
+  }
+
+  function safeParseJSON(s, fallback){
+    try { const v = JSON.parse(s); return Array.isArray(v) ? v : fallback }
+    catch(e){ return fallback }
+  }
+
+  // init
+  populateJSON(sampleTools)
+  applyFilters()
+  updateTagSelect()
+</script>
+</body>
+</html>
